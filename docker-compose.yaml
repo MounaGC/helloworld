@@ -1,0 +1,6 @@
+﻿version: "3"
+services:
+  helloworld:
+    build: ./HelloWorld
+    ports:
+      - 5008:5008
