@@ -20,7 +20,7 @@ spec:
         kubernetes.io/os: linux
       containers:
         - name: hello-world
-          image: "wspdevglobalacr.azurecr.io/helloworld:v0.0.1"
+          image: "<dockerrepo.io>/helloworld:v0.0.1"
           imagePullPolicy: Always
           command: [dotnet]
           args: [HelloWorld.dll]
@@ -50,39 +50,6 @@ spec:
             timeoutSeconds: 2
             periodSeconds: 2
             failureThreshold: 5 
-
----
-# Ingress configuration for helloworld
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_ssl_name "hello-world.hello-world.cluster.local";
-    nginx.ingress.kubernetes.io/proxy-ssl-secret: "kube-system/osm-nginx-client-cert"
-    nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
-  name: hello-world
-  namespace: hello-world
-  labels:
-    app: hello-world
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: "hellowrold.c001.eastus2.dev.cloud.com"
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: hello-world
-            port: 
-              number: 80
-  tls:
-  - secretName: ingress-certificate
-    hosts:
-      - hellowrold.w57g.eastus2.dev.cloud.com
 
 ---
 #Create namespace for hello world application
@@ -149,34 +116,3 @@ spec:
       target:
         type: Utilization
         averageUtilization: 60
----
-# Source: skeleton-bones/templates/networkpolicy.yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: skeleton-bones-policy
-  labels:
-    app.kubernetes.io/name: "skeleton-bones"
-    app.kubernetes.io/managed-by: "Helm"
-    app.kubernetes.io/release: "skeleton-bones"
-    helm.sh/chart: "skeleton-bones-0.1.583"
-  namespace: skeleton-bones
-spec:
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/release: "skeleton-bones"
-  policyTypes:
-  - Ingress
-  ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: customer-decommissioning
-    ports:
-      - port: 3001
-        protocol: TCP
-  - ports:
-    - port: 80
-      protocol: TCP
-    - port: 8080
-      protocol: TCP
